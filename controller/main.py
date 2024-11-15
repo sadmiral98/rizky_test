@@ -21,14 +21,14 @@ class WebController(Webhook):
     def webhookpost(self):
         data = json.loads(request.httprequest.data)
         
-        _logger.info("\n\nWebhook Data: %s", json.dumps(data, indent=4))
+        _logger.info("\n\ndke.iziapp.id : Webhook Data: %s", json.dumps(data, indent=4))
         
         if request.env.company.ngrok_url:
-            _logger.info("\n\nPOST : ngrok url found!")
+            _logger.info("\n\ndke.iziapp.id : POST : ngrok url found!")
             url = request.env.company.ngrok_url
             response = requests.post(url, json=data)
         else:
-            _logger.info("\n\nPOST : ngrok url not found!")
+            _logger.info("\n\ndke.iziapp.id : POST : ngrok url not found!")
         super().webhookpost()
     # @http.route('/whatsapp/webhook/', methods=['POST'], type="json", auth="public")
     # def webhookpost(self):
