@@ -11,17 +11,20 @@ _logger = logging.getLogger(__name__)
 from odoo.addons.whatsapp.controller.main import Webhook
 
 class WebController(Webhook):
-    # @http.route('/testwebhookpost', methods=['POST'], type="json", auth="public")
-    # def testwebhookpost(self):
-    #     data = json.loads(request.httprequest.data)
-    #     print("\n\n data webhook :")
-    #     print(data)
+    @http.route('/testwebhookpost', methods=['POST'], type="json", auth="public")
+    def testwebhookpost(self):
+        data = json.loads(request.httprequest.data)
+        print("\n\n data webhook :")
+        print(data)
 
     @http.route()
     def webhookpost(self):
         data = json.loads(request.httprequest.data)
         
-        _logger.info("\n\ndke.iziapp.id : Webhook Data: %s", json.dumps(data, indent=4))
+        # _logger.info("\n\ndke.iziapp.id : Webhook Data: %s", json.dumps(data, indent=4))
+        _logger.info("\n\ndke.iziapp.id : req :",request.env.company.id)
+        _logger.info("\n\ndke.iziapp.id : req :",request.env.company.name)
+        _logger.info("\n\ndke.iziapp.id : req :",request.env.company.ngrok_url)
         
         if request.env.company.ngrok_url:
             _logger.info("\n\ndke.iziapp.id : POST : ngrok url found!")
