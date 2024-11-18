@@ -1,38 +1,73 @@
 # -*- coding: utf-8 -*-
 # Copyright 2022 IZI PT Solusi Usaha Mudah
-import random, json
 from odoo import http, fields
 from datetime import datetime, timedelta
 from odoo.http import request
-import requests
 from bs4 import BeautifulSoup
-import logging
-_logger = logging.getLogger('dke.iziapp.id')
 from odoo.addons.whatsapp.controller.main import Webhook
+import requests
+import threading
+import json
+
 from odoo import _
+from odoo.exceptions import RedirectWarning
 from odoo.addons.whatsapp.tools.whatsapp_api import WhatsAppApi
 from odoo.addons.whatsapp.tools.whatsapp_exception import WhatsAppError
 
+import logging
+_logger = logging.getLogger('dke.iziapp.id')
+
+
+DEFAULT_ENDPOINT = "https://graph.facebook.com/v17.0"
+
 # R: monkey patching
 original_send_whatsapp = WhatsAppApi._send_whatsapp
-print("\n\n whangsaff")
-print(original_send_whatsapp)
-# print(WhatsAppApi.__api_requests)
 
 def custom_api_request(self, request_type, url, auth_type="", params=False, headers=None, data=False, files=False, endpoint_include=False):
-    # Call the original __api_requests function from WhatsAppApi
-    return super(WhatsAppApi, self).__api_requests(
-        request_type,
-        url,
-        auth_type=auth_type,
-        params=params,
-        headers=headers,
-        data=data,
-        files=files,
-        endpoint_include=endpoint_include
-    )
+    if getattr(threading.current_thread(), 'testing', False):
+        raise WhatsAppError("API requests disabled in testing.")
+
+    headers = headers or {}
+    params = params or {}
+    if not all([self.token, self.phone_uid]):
+        action = self.wa_account_id.env.ref('whatsapp.whatsapp_account_action')
+        raise RedirectWarning(_("To use WhatsApp Configure it first"), action=action.id, button_text=_("Configure Whatsapp Business Account"))
+    if auth_type == 'oauth':
+        headers.update({'Authorization': f'OAuth {self.token}'})
+    if auth_type == 'bearer':
+        headers.update({'Authorization': f'Bearer {self.token}'})
+    call_url = (DEFAULT_ENDPOINT + url) if not endpoint_include else url
+
+    try:
+        res = requests.request(request_type, call_url, params=params, headers=headers, data=data, files=files, timeout=10)
+    except requests.exceptions.RequestException:
+        raise WhatsAppError(failure_type='network')
+
+    # raise if json-parseable and 'error' in json
+    try:
+        if 'error' in res.json():
+            raise WhatsAppError(*self.custom_prepare_error_response(res.json()))
+    except ValueError:
+        if not res.ok:
+            raise WhatsAppError(failure_type='network')
+
+    return res
+
+def custom_prepare_error_response(self, response):
+    """
+        This method is used to prepare error response
+        :return tuple[str, int]: (error_message, whatsapp_error_code | -1)
+    """
+    if response.get('error'):
+        error = response['error']
+        desc = error.get('message')
+        code = error.get('code', 'odoo')
+        return (desc if desc else _("{error_code} - Non-descript Error", code), code)
+    return (_("Something went wrong when contacting WhatsApp, please try again later. If this happens frequently, contact support."), -1)
 
 WhatsAppApi.custom_api_request = custom_api_request
+WhatsAppApi.custom_prepare_error_response = custom_prepare_error_response
+
 def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False):
     """ Send WA messages for all message type using WhatsApp Business Account
 
@@ -103,7 +138,7 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
     if response_json.get('messages'):
         msg_uid = response_json['messages'][0]['id']
         return msg_uid
-    raise WhatsAppError(*self._prepare_error_response(response_json))
+    raise WhatsAppError(*self.custom_prepare_error_response(response_json))
 
 WhatsAppApi._send_whatsapp = custom_send_whatsapp
 class WebController(Webhook):
