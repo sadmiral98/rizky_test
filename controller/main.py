@@ -21,14 +21,14 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         'send_vals':send_vals,
         'parent_message_id':parent_message_id
     }
-    json_data = json.dumps(data)
     if request.env.company.ngrok_url:
         _logger.info("\n\ndke.iziapp.id : POST Send Whatsapp : ngrok url found!")
         url = f"{request.env.company.ngrok_url}testsendwhatsapp"
-        response = requests.post(url, json=json_data)
+        response = requests.post(url, json=data)
     else:
         _logger.info("\n\ndke.iziapp.id : POST Send Whatsapp : ngrok url NOT found!")
     return original_send_whatsapp(self, number, message_type, send_vals, parent_message_id)
+
 WhatsAppApi._send_whatsapp = custom_send_whatsapp
 class WebController(Webhook):
     @http.route()
