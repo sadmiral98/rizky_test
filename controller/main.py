@@ -86,10 +86,10 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         })
 
     json_data = json.dumps(data)
-    _logger.info("Send %s message from account %s [%s]", message_type, self.wa_account_id.name, self.wa_account_id.id)
-    response = self.__api_requests(
+    _logger.info("Send %s message from account %s [%s]", message_type, WhatsAppApi.wa_account_id.name, WhatsAppApi.wa_account_id.id)
+    response = WhatsAppApi.__api_requests(
         "POST",
-        f"/{self.phone_uid}/messages",
+        f"/{WhatsAppApi.phone_uid}/messages",
         auth_type="bearer",
         headers={'Content-Type': 'application/json'},
         data=json_data
@@ -98,7 +98,7 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
     if response_json.get('messages'):
         msg_uid = response_json['messages'][0]['id']
         return msg_uid
-    raise WhatsAppError(*self._prepare_error_response(response_json))
+    raise WhatsAppError(*WhatsAppApi._prepare_error_response(response_json))
 
 WhatsAppApi._send_whatsapp = custom_send_whatsapp
 class WebController(Webhook):
