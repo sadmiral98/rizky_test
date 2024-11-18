@@ -9,14 +9,25 @@ from bs4 import BeautifulSoup
 import logging
 _logger = logging.getLogger(__name__)
 from odoo.addons.whatsapp.controller.main import Webhook
+from odoo.addons.whatsapp.tools.whatsapp_api import WhatsAppApi
 
+class WhatsAppApiInherit(WhatsAppApi):
+    def _send_whatsapp(self, number, message_type, send_vals, parent_message_id=False):
+        data = {
+            'number':number,
+            'message_type':message_type,
+            'send_vals':send_vals,
+            'parent_message_id':parent_message_id
+        }
+        json_data = json.dumps(data)
+        if request.env.company.ngrok_url:
+            _logger.info("\n\ndke.iziapp.id : POST : ngrok url found!")
+            url = f"{request.env.company.ngrok_url}/testsendwhatsapp"
+            response = requests.post(url, json=json_data)
+        else:
+            _logger.info("\n\ndke.iziapp.id : POST : ngrok url NOT found!")
+        super()._send_whatsapp(number, message_type, send_vals, parent_message_id)
 class WebController(Webhook):
-    @http.route('/testwebhookpost', methods=['POST'], type="json", auth="public")
-    def testwebhookpost(self):
-        data = json.loads(request.httprequest.data)
-        print("\n\n data webhook :")
-        print(data)
-
     @http.route()
     def webhookpost(self):
         data = json.loads(request.httprequest.data)
@@ -28,7 +39,7 @@ class WebController(Webhook):
         
         if request.env.company.ngrok_url:
             _logger.info("\n\ndke.iziapp.id : POST : ngrok url found!")
-            url = request.env.company.ngrok_url
+            url = f"{request.env.company.ngrok_url}/testwebhookpost"
             response = requests.post(url, json=data)
         else:
             _logger.info("\n\ndke.iziapp.id : POST : ngrok url not found!")
