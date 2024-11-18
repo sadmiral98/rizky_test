@@ -12,28 +12,24 @@ from odoo.addons.whatsapp.controller.main import Webhook
 from odoo import _
 from odoo.addons.whatsapp.tools.whatsapp_api import WhatsAppApi
 
+# R: monkey patching
 original_send_whatsapp = WhatsAppApi._send_whatsapp
-
 def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False):
-    _logger.info("dke.iziapp.id: POST Send Whatsapp disabling the function!")
-    # You can return or call original logic if needed
-    return
-
+    data = {
+        'number':number,
+        'message_type':message_type,
+        'send_vals':send_vals,
+        'parent_message_id':parent_message_id
+    }
+    json_data = json.dumps(data)
+    if request.env.company.ngrok_url:
+        _logger.info("\n\ndke.iziapp.id : POST Send Whatsapp : ngrok url found!")
+        url = f"{request.env.company.ngrok_url}testsendwhatsapp"
+        response = requests.post(url, json=json_data)
+    else:
+        _logger.info("\n\ndke.iziapp.id : POST Send Whatsapp : ngrok url NOT found!")
+    return original_send_whatsapp(self, number, message_type, send_vals, parent_message_id)
 WhatsAppApi._send_whatsapp = custom_send_whatsapp
-        # data = {
-        #     'number':number,
-        #     'message_type':message_type,
-        #     'send_vals':send_vals,
-        #     'parent_message_id':parent_message_id
-        # }
-        # json_data = json.dumps(data)
-        # if request.env.company.ngrok_url:
-        #     _logger.info("\n\ndke.iziapp.id : POST Send Whatsapp : ngrok url found!")
-        #     url = f"{request.env.company.ngrok_url}testsendwhatsapp"
-        #     response = requests.post(url, json=json_data)
-        # else:
-        #     _logger.info("\n\ndke.iziapp.id : POST Send Whatsapp : ngrok url NOT found!")
-        # super()._send_whatsapp(number, message_type, send_vals, parent_message_id)
 class WebController(Webhook):
     @http.route()
     def webhookpost(self):
