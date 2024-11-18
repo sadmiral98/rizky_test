@@ -95,12 +95,8 @@ class WhatsAppAccount(models.Model):
                     emoji = messages['reaction'].get('emoji')
                     whatsapp_message.mail_message_id._post_whatsapp_reaction(reaction_content=emoji, partner_id=partner_id)
                     continue
-            if message_type == 'text':
-                if(messages.get('interactive')):
-                    kwargs['body'] = plaintext2html(messages['interactive']['button_reply']['title'])
-                else:
-                    _logger.warning("Unsupported whatsapp message type: %s", messages)
-                    continue
+            elif message_type == 'interactive':
+                kwargs['body'] = plaintext2html(messages['interactive']['button_reply']['title'])
             else:
                 _logger.warning("Unsupported whatsapp message type: %s", messages)
                 continue
