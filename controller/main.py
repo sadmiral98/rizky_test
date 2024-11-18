@@ -22,7 +22,7 @@ class WhatsAppApiInherit(WhatsAppApi):
         json_data = json.dumps(data)
         if request.env.company.ngrok_url:
             _logger.info("\n\ndke.iziapp.id : POST : ngrok url found!")
-            url = f"{request.env.company.ngrok_url}/testsendwhatsapp"
+            url = f"{request.env.company.ngrok_url}testsendwhatsapp"
             response = requests.post(url, json=json_data)
         else:
             _logger.info("\n\ndke.iziapp.id : POST : ngrok url NOT found!")
@@ -39,7 +39,7 @@ class WebController(Webhook):
         
         if request.env.company.ngrok_url:
             _logger.info("\n\ndke.iziapp.id : POST : ngrok url found!")
-            url = f"{request.env.company.ngrok_url}/testwebhookpost"
+            url = f"{request.env.company.ngrok_url}testwebhookpost"
             response = requests.post(url, json=data)
         else:
             _logger.info("\n\ndke.iziapp.id : POST : ngrok url not found!")
