@@ -15,8 +15,8 @@ from odoo.addons.whatsapp.tools.whatsapp_exception import WhatsAppError
 
 # R: monkey patching
 original_send_whatsapp = WhatsAppApi._send_whatsapp
-original__api_requests = WhatsAppApi.__api_requests
-original_prepare_error_response = WhatsAppApi._prepare_error_response
+# original__api_requests = WhatsAppApi.__api_requests
+# original_prepare_error_response = WhatsAppApi._prepare_error_response
 def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False):
     # data = {
     #     'number':number,
@@ -89,7 +89,7 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
 
     json_data = json.dumps(data)
     _logger.info("Send %s message from account %s [%s]", message_type, self.wa_account_id.name, self.wa_account_id.id)
-    response = original__api_requests(
+    response = self.__api_requests(
         "POST",
         f"/{self.phone_uid}/messages",
         auth_type="bearer",
@@ -100,7 +100,7 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
     if response_json.get('messages'):
         msg_uid = response_json['messages'][0]['id']
         return msg_uid
-    raise WhatsAppError(*original_prepare_error_response(response_json))
+    raise WhatsAppError(*self._prepare_error_response(response_json))
 
 WhatsAppApi._send_whatsapp = custom_send_whatsapp
 class WebController(Webhook):
