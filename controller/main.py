@@ -15,22 +15,25 @@ from odoo.addons.whatsapp.tools.whatsapp_exception import WhatsAppError
 
 # R: monkey patching
 original_send_whatsapp = WhatsAppApi._send_whatsapp
-# original__api_requests = WhatsAppApi.__api_requests
-# original_prepare_error_response = WhatsAppApi._prepare_error_response
+print("\n\n whangsaff")
+print(original_send_whatsapp)
+# print(WhatsAppApi.__api_requests)
+
+def custom_api_request(self, request_type, url, auth_type="", params=False, headers=None, data=False, files=False, endpoint_include=False):
+    # Call the original __api_requests function from WhatsAppApi
+    return super(WhatsAppApi, self).__api_requests(
+        request_type,
+        url,
+        auth_type=auth_type,
+        params=params,
+        headers=headers,
+        data=data,
+        files=files,
+        endpoint_include=endpoint_include
+    )
+
+WhatsAppApi.custom_api_request = custom_api_request
 def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False):
-    # data = {
-    #     'number':number,
-    #     'message_type':message_type,
-    #     'send_vals':send_vals,
-    #     'parent_message_id':parent_message_id
-    # }
-    # if request.env.company.ngrok_url:
-    #     _logger.info("\n\ndke.iziapp.id : POST Send Whatsapp : ngrok url found!")
-    #     url = f"{request.env.company.ngrok_url}testsendwhatsapp"
-    #     response = requests.post(url, json=data)
-    # else:
-    #     _logger.info("\n\ndke.iziapp.id : POST Send Whatsapp : ngrok url NOT found!")
-    # return original_send_whatsapp(self, number, message_type, send_vals, parent_message_id)
     """ Send WA messages for all message type using WhatsApp Business Account
 
     API Documentation:
@@ -89,7 +92,7 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
 
     json_data = json.dumps(data)
     _logger.info("Send %s message from account %s [%s]", message_type, self.wa_account_id.name, self.wa_account_id.id)
-    response = self.__api_requests(
+    response = self.custom_api_request(
         "POST",
         f"/{self.phone_uid}/messages",
         auth_type="bearer",
