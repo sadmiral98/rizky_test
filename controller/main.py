@@ -9,11 +9,12 @@ from bs4 import BeautifulSoup
 import logging
 _logger = logging.getLogger('dke.iziapp.id')
 from odoo.addons.whatsapp.controller.main import Webhook
+from odoo import _
 from odoo.addons.whatsapp.tools.whatsapp_api import WhatsAppApi
 
 class WhatsAppApiInherit(WhatsAppApi):
     def _send_whatsapp(self, number, message_type, send_vals, parent_message_id=False):
-            _logger.info("\n\ndke.iziapp.id : POST Send Whatsapp disabling the function!")
+        _logger.info("\n\ndke.iziapp.id : POST Send Whatsapp disabling the function!")
 
         # data = {
         #     'number':number,
