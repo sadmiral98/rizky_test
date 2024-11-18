@@ -12,10 +12,14 @@ from odoo.addons.whatsapp.controller.main import Webhook
 from odoo import _
 from odoo.addons.whatsapp.tools.whatsapp_api import WhatsAppApi
 
-class WhatsAppApiInherit(WhatsAppApi):
-    def _send_whatsapp(self, number, message_type, send_vals, parent_message_id=False):
-        _logger.info("\n\ndke.iziapp.id : POST Send Whatsapp disabling the function!")
+original_send_whatsapp = WhatsAppApi._send_whatsapp
 
+def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False):
+    _logger.info("dke.iziapp.id: POST Send Whatsapp disabling the function!")
+    # You can return or call original logic if needed
+    return
+
+WhatsAppApi._send_whatsapp = custom_send_whatsapp
         # data = {
         #     'number':number,
         #     'message_type':message_type,
