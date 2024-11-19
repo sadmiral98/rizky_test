@@ -68,7 +68,8 @@ def custom_prepare_error_response(self, response):
 
 def get_media_id(self, file_content, file_name, mimetype):
     files = {
-        "file": (file_name, file_content, mimetype)
+        "file": (file_name, file_content, mimetype),
+        "messaging_product": "whatsapp"
     }
     response = self.custom_api_request(
         "POST",
