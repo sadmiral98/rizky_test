@@ -93,10 +93,44 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
             message_type: send_vals
         })
     if message_type == 'text':
+        # BUtton reply chat
+        # data.update({
+        #     'type': 'interactive',
+        #     'interactive': {
+        #         'type': 'button',
+        #         'header': {
+        #             'type':'text',
+        #             'text': 'Testing Reply Button'
+        #         },
+        #         'body': {
+        #             'text': send_vals.get('body')
+        #         },
+        #         'action': {
+        #             'buttons': [
+        #                 {
+        #                 'type': 'reply',
+        #                 'reply': {
+        #                     'id': 'reply-yes',
+        #                     'title': 'Yeah !'
+        #                     }
+        #                 },
+        #                 {
+        #                 'type': 'reply',
+        #                 'reply': {
+        #                     'id': 'reply-no',
+        #                     'title': 'Nope ?!'
+        #                     }
+        #                 }
+        #             ]
+        #         }
+        #     }
+        # })
+
+        # List reply chat
         data.update({
             'type': 'interactive',
             'interactive': {
-                'type': 'button',
+                'type': 'list',
                 'header': {
                     'type':'text',
                     'text': 'Testing Reply Button'
@@ -105,22 +139,51 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
                     'text': send_vals.get('body')
                 },
                 'action': {
-                    'buttons': [
+                    'sections': [
                         {
-                        'type': 'reply',
-                        'reply': {
-                            'id': 'reply-yes',
-                            'title': 'Yeah !'
-                            }
+                            'title': 'SECTION Tit;e',
+                            'rows': [
+                                {
+                                'id': 'row_1',
+                                'title': 'row title 1',
+                                'description': 'description row 1'
+                                },
+                                {
+                                'id': 'row_2',
+                                'title': 'row title 2',
+                                'description': 'description row 2'
+                                },
+                                {
+                                'id': 'row_3',
+                                'title': 'row title 3',
+                                'description': 'description row 3'
+                                },
+                                
+                            ]
                         },
                         {
-                        'type': 'reply',
-                        'reply': {
-                            'id': 'reply-no',
-                            'title': 'Nope ?!'
-                            }
-                        }
-                    ]
+                            'title': 'SECTION Title 2',
+                            'rows': [
+                                {
+                                'id': '2_row_1',
+                                'title': '2_row title 1',
+                                'description': 'description 2_row 1'
+                                },
+                                {
+                                'id': '2_row_2',
+                                'title': '2_row title 2',
+                                'description': 'description 2_row 2'
+                                },
+                                {
+                                'id': '2_row_3',
+                                'title': '2_row title 3',
+                                'description': 'description 2_row 3'
+                                },
+                            ]
+                        },
+                        
+                    ],
+                    'button': 'button akhir',
                 }
             }
         })
