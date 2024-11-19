@@ -84,6 +84,21 @@ def get_media_id(self, file_content, file_name, mimetype):
         return media_id
     return media_id
 
+def custom_process_image(self, data, send_vals):
+    attachment = request.env['ir.attachment'].sudo().browse(1341)
+    file_content = base64.b64decode(attachment.datas)
+    file_name = attachment.name
+    mimetype = attachment.mimetype
+    media_id = self.get_media_id(file_content, file_name, mimetype)
+    data.update({
+        'type': 'image',
+        'image': {
+            'id' : media_id,
+            'caption': 'Image Testing Ahh',
+        }
+    })
+    return data
+
 def custom_process_document(self, data, send_vals):
     attachment = request.env['ir.attachment'].sudo().browse(1340)
     file_content = base64.b64decode(attachment.datas)
@@ -228,7 +243,10 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         # data = self.custom_process_list(data, send_vals)
 
         # document reply chat
-        data = self.custom_process_document(data, send_vals)
+        # data = self.custom_process_document(data, send_vals)
+
+        # Image reply chat
+        data = self.custom_process_image(data, send_vals)
 
     json_data = json.dumps(data)
     _logger.info("Send %s message from account %s [%s]", message_type, self.wa_account_id.name, self.wa_account_id.id)
@@ -248,6 +266,7 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
 WhatsAppApi.custom_api_request = custom_api_request
 WhatsAppApi.custom_prepare_error_response = custom_prepare_error_response
 WhatsAppApi.get_media_id = get_media_id
+WhatsAppApi.custom_process_image = custom_process_image
 WhatsAppApi.custom_process_document = custom_process_document
 WhatsAppApi.custom_process_list = custom_process_list
 WhatsAppApi.custom_process_button = custom_process_button
