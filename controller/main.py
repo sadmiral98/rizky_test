@@ -80,7 +80,6 @@ def get_media_id(self, file_content, file_name, mimetype):
     response = requests.post(url, headers=headers, files=files)
     _logger.info("URL: %s", url)
     _logger.info("Headers: %s", headers)
-    _logger.info("Files Sent: %s", files)
     _logger.info("Response Status: %s", response.status_code)
     _logger.info("Response Content: %s", response.text)
 
