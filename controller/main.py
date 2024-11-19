@@ -94,7 +94,7 @@ def custom_process_image(self, data, send_vals):
         'type': 'image',
         'image': {
             'id' : media_id,
-            'caption': 'Image Testing Ahh',
+            'caption': send_vals.get('body'),
         }
     })
     return data
@@ -109,7 +109,7 @@ def custom_process_document(self, data, send_vals):
         'type': 'document',
         'document': {
             'id' : media_id,
-            'caption': 'Document Caption',
+            'caption': send_vals.get('body'),
             'filename': 'doc_filename.pdf'
         }
     })
@@ -172,7 +172,7 @@ def custom_process_list(self, data, send_vals):
                     },
                     
                 ],
-                'button': 'button akhir',
+                'button': 'Open Option',
             }
         }
     })
