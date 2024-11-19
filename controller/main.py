@@ -68,17 +68,16 @@ def custom_prepare_error_response(self, response):
 
 def get_media_id(self, file_content, file_name, mimetype):
     files = {
-        "file": (file_name, file_content, mimetype),
-        "messaging_product": "whatsapp"
+        'file': (file_name, file_content, mimetype),
+        'type': mimetype,
+        'messaging_product': 'whatsapp'
     }
-    response = self.custom_api_request(
-        "POST",
-        f"/{self.phone_uid}/media",
-        auth_type="bearer",
-        headers={'Content-Type': 'application/json'},
-        files=files
-    )
-    # response = requests.post(url, headers=headers, files=files)
+    url = f"{DEFAULT_ENDPOINT}/{self.phone_uid}/media"
+    headers={
+        # 'Content-Type': 'application/json',
+        'Authorization': f'Bearer {self.token}'
+    }
+    response = requests.post(url, headers=headers, files=files)
     _logger.info("response get media %s", response)
     media_id = response.json().get('id')
     return media_id
