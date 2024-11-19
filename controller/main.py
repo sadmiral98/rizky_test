@@ -8,6 +8,7 @@ from odoo.addons.whatsapp.controller.main import Webhook
 import requests
 import threading
 import json
+import base64
 
 from odoo import _
 from odoo.exceptions import RedirectWarning
@@ -68,6 +69,125 @@ def custom_prepare_error_response(self, response):
 WhatsAppApi.custom_api_request = custom_api_request
 WhatsAppApi.custom_prepare_error_response = custom_prepare_error_response
 
+def get_media_id(self, file_content, file_name, mimetype):
+    url = f"{DEFAULT_ENDPOINT}/{self.phone_uid}/media"
+    headers = {
+        "Authorization": f"Bearer {self.token}"
+    }
+    files = {
+        "file": (file_name, file_content, mimetype)
+    }
+    response = requests.post(url, headers=headers, files=files)
+    media_id = response.json().get('id')
+    return media_id
+
+def custom_process_document(self, data, send_vals, media_id):
+    data.update({
+        'type': 'document',
+        'document': {
+            'id' : media_id,
+            'caption': 'Document Caption',
+            'filename': 'doc_filename.pdf'
+        }
+    })
+    return data
+
+def custom_process_list(self, data, send_vals):
+    data.update({
+        'type': 'interactive',
+        'interactive': {
+            'type': 'list',
+            'header': {
+                'type':'text',
+                'text': 'Testing Reply Button'
+            },
+            'body': {
+                'text': send_vals.get('body')
+            },
+            'action': {
+                'sections': [
+                    {
+                        'title': 'SECTION Tit;e',
+                        'rows': [
+                            {
+                            'id': 'row_1',
+                            'title': 'row title 1',
+                            'description': 'description row 1'
+                            },
+                            {
+                            'id': 'row_2',
+                            'title': 'row title 2',
+                            'description': 'description row 2'
+                            },
+                            {
+                            'id': 'row_3',
+                            'title': 'row title 3',
+                            'description': 'description row 3'
+                            },
+                            
+                        ]
+                    },
+                    {
+                        'title': 'SECTION Title 2',
+                        'rows': [
+                            {
+                            'id': '2_row_1',
+                            'title': '2_row title 1',
+                            'description': 'description 2_row 1'
+                            },
+                            {
+                            'id': '2_row_2',
+                            'title': '2_row title 2',
+                            'description': 'description 2_row 2'
+                            },
+                            {
+                            'id': '2_row_3',
+                            'title': '2_row title 3',
+                            'description': 'description 2_row 3'
+                            },
+                        ]
+                    },
+                    
+                ],
+                'button': 'button akhir',
+            }
+        }
+    })
+    return data
+
+def custom_process_button(self, data, send_vals):
+    data.update({
+        'type': 'interactive',
+        'interactive': {
+            'type': 'button',
+            'header': {
+                'type':'text',
+                'text': 'Testing Reply Button'
+            },
+            'body': {
+                'text': send_vals.get('body')
+            },
+            'action': {
+                'buttons': [
+                    {
+                    'type': 'reply',
+                    'reply': {
+                        'id': 'reply-yes',
+                        'title': 'Yeah !'
+                        }
+                    },
+                    {
+                    'type': 'reply',
+                    'reply': {
+                        'id': 'reply-no',
+                        'title': 'Nope ?!'
+                        }
+                    }
+                ]
+            }
+        }
+    })
+    return data
 def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False):
     """ Send WA messages for all message type using WhatsApp Business Account
 
@@ -94,99 +214,18 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         })
     if message_type == 'text':
         # BUtton reply chat
-        # data.update({
-        #     'type': 'interactive',
-        #     'interactive': {
-        #         'type': 'button',
-        #         'header': {
-        #             'type':'text',
-        #             'text': 'Testing Reply Button'
-        #         },
-        #         'body': {
-        #             'text': send_vals.get('body')
-        #         },
-        #         'action': {
-        #             'buttons': [
-        #                 {
-        #                 'type': 'reply',
-        #                 'reply': {
-        #                     'id': 'reply-yes',
-        #                     'title': 'Yeah !'
-        #                     }
-        #                 },
-        #                 {
-        #                 'type': 'reply',
-        #                 'reply': {
-        #                     'id': 'reply-no',
-        #                     'title': 'Nope ?!'
-        #                     }
-        #                 }
-        #             ]
-        #         }
-        #     }
-        # })
+        # data = self.custom_process_button(data, send_vals)
 
         # List reply chat
-        data.update({
-            'type': 'interactive',
-            'interactive': {
-                'type': 'list',
-                'header': {
-                    'type':'text',
-                    'text': 'Testing Reply Button'
-                },
-                'body': {
-                    'text': send_vals.get('body')
-                },
-                'action': {
-                    'sections': [
-                        {
-                            'title': 'SECTION Tit;e',
-                            'rows': [
-                                {
-                                'id': 'row_1',
-                                'title': 'row title 1',
-                                'description': 'description row 1'
-                                },
-                                {
-                                'id': 'row_2',
-                                'title': 'row title 2',
-                                'description': 'description row 2'
-                                },
-                                {
-                                'id': 'row_3',
-                                'title': 'row title 3',
-                                'description': 'description row 3'
-                                },
-                                
-                            ]
-                        },
-                        {
-                            'title': 'SECTION Title 2',
-                            'rows': [
-                                {
-                                'id': '2_row_1',
-                                'title': '2_row title 1',
-                                'description': 'description 2_row 1'
-                                },
-                                {
-                                'id': '2_row_2',
-                                'title': '2_row title 2',
-                                'description': 'description 2_row 2'
-                                },
-                                {
-                                'id': '2_row_3',
-                                'title': '2_row title 3',
-                                'description': 'description 2_row 3'
-                                },
-                            ]
-                        },
-                        
-                    ],
-                    'button': 'button akhir',
-                }
-            }
-        })
+        # data = self.custom_process_list(data, send_vals)
+
+        # document reply chat
+        attachment = request.env['ir.attachment'].sudo().browse(1340)
+        file_content = base64.b64decode(attachment.datas)
+        file_name = attachment.name
+        mimetype = attachment.mimetype
+        media_id = self.get_media_id(file_content, file_name, mimetype)
+        data = self.custom_process_document(data, send_vals, media_id)
 
     json_data = json.dumps(data)
     _logger.info("Send %s message from account %s [%s]", message_type, self.wa_account_id.name, self.wa_account_id.id)
