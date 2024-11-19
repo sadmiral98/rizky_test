@@ -78,16 +78,10 @@ def get_media_id(self, file_content, file_name, mimetype):
         'Authorization': f'Bearer {self.token}'
     }
     response = requests.post(url, headers=headers, files=files)
-    _logger.info("URL: %s", url)
-    _logger.info("Headers: %s", headers)
-    _logger.info("Response Status: %s", response.status_code)
-    _logger.info("Response Content: %s", response.text)
 
     if response.status_code == 200:
-        _logger.info("response get media %s", response)
         media_id = response.json().get('id')
         return media_id
-    media_id = response.json().get('id')
     return media_id
 
 def custom_process_document(self, data, send_vals, media_id):
