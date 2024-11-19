@@ -66,9 +66,6 @@ def custom_prepare_error_response(self, response):
         return (desc if desc else _("{error_code} - Non-descript Error", code), code)
     return (_("Something went wrong when contacting WhatsApp, please try again later. If this happens frequently, contact support."), -1)
 
-WhatsAppApi.custom_api_request = custom_api_request
-WhatsAppApi.custom_prepare_error_response = custom_prepare_error_response
-
 def get_media_id(self, file_content, file_name, mimetype):
     url = f"{DEFAULT_ENDPOINT}/{self.phone_uid}/media"
     headers = {
@@ -242,6 +239,12 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         return msg_uid
     raise WhatsAppError(*self.custom_prepare_error_response(response_json))
 
+WhatsAppApi.custom_api_request = custom_api_request
+WhatsAppApi.custom_prepare_error_response = custom_prepare_error_response
+WhatsAppApi.get_media_id = get_media_id
+WhatsAppApi.custom_process_document = custom_process_document
+WhatsAppApi.custom_process_list = custom_process_list
+WhatsAppApi.custom_process_button = custom_process_button
 WhatsAppApi._send_whatsapp = custom_send_whatsapp
 class WebController(Webhook):
     @http.route()
