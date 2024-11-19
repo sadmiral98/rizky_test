@@ -69,8 +69,8 @@ def custom_prepare_error_response(self, response):
 def get_media_id(self, file_content, file_name, mimetype):
     files = {
         'file': (file_name, file_content, mimetype),
-        'type': mimetype,
-        'messaging_product': 'whatsapp'
+        'type': (None, mimetype),                    # Non-file field
+        'messaging_product': (None, 'whatsapp')
     }
     url = f"{DEFAULT_ENDPOINT}/{self.phone_uid}/media"
     headers={
