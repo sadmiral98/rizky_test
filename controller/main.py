@@ -67,14 +67,18 @@ def custom_prepare_error_response(self, response):
     return (_("Something went wrong when contacting WhatsApp, please try again later. If this happens frequently, contact support."), -1)
 
 def get_media_id(self, file_content, file_name, mimetype):
-    url = f"{DEFAULT_ENDPOINT}/{self.phone_uid}/media"
-    headers = {
-        "Authorization": f"Bearer {self.token}"
-    }
     files = {
         "file": (file_name, file_content, mimetype)
     }
-    response = requests.post(url, headers=headers, files=files)
+    response = self.custom_api_request(
+        "POST",
+        f"/{self.phone_uid}/media",
+        auth_type="bearer",
+        headers={'Content-Type': 'application/json'},
+        files=files
+    )
+    # response = requests.post(url, headers=headers, files=files)
+    _logger.info("response get media %s", response)
     media_id = response.json().get('id')
     return media_id
 
