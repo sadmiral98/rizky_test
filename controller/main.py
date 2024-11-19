@@ -84,7 +84,12 @@ def get_media_id(self, file_content, file_name, mimetype):
         return media_id
     return media_id
 
-def custom_process_document(self, data, send_vals, media_id):
+def custom_process_document(self, data, send_vals):
+    attachment = request.env['ir.attachment'].sudo().browse(1340)
+    file_content = base64.b64decode(attachment.datas)
+    file_name = attachment.name
+    mimetype = attachment.mimetype
+    media_id = self.get_media_id(file_content, file_name, mimetype)
     data.update({
         'type': 'document',
         'document': {
@@ -223,12 +228,7 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         # data = self.custom_process_list(data, send_vals)
 
         # document reply chat
-        attachment = request.env['ir.attachment'].sudo().browse(1340)
-        file_content = base64.b64decode(attachment.datas)
-        file_name = attachment.name
-        mimetype = attachment.mimetype
-        media_id = self.get_media_id(file_content, file_name, mimetype)
-        data = self.custom_process_document(data, send_vals, media_id)
+        data = self.custom_process_document(data, send_vals)
 
     json_data = json.dumps(data)
     _logger.info("Send %s message from account %s [%s]", message_type, self.wa_account_id.name, self.wa_account_id.id)
