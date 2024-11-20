@@ -212,6 +212,7 @@ def custom_process_button(self, data, send_vals):
     })
     return data
 def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False):
+    _logger.info("Lets see the context : [%s]", self.env.context)
     """ Send WA messages for all message type using WhatsApp Business Account
 
     API Documentation:
