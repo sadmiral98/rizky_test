@@ -12,7 +12,7 @@
     "support": "rizkysptr3798@gmail.com",
     "maintainer": "RIZKY",
     "website": "",
-    "depends": ["base","whatsapp"],
+    "depends": ["base","whatsapp", "account"],
     "data": [
         'views/company.xml',
     ],

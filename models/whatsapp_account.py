@@ -101,3 +101,11 @@ class WhatsAppAccount(models.Model):
                 _logger.warning("Unsupported whatsapp message type: %s", messages)
                 continue
             channel.message_post(whatsapp_inbound_msg_uid=messages['id'], **kwargs)
+
+
+class WhatsAppMessage(models.Model):
+    _inherit = 'whatsapp.message'
+
+    def _send(self, force_send_by_cron=False):
+        _logger.info("dke.iziapp.id : context in _send = %s",self.env.context)
+        return super()._send(force_send_by_cron=force_send_by_cron)

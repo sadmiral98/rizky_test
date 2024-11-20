@@ -237,7 +237,7 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         })
     if message_type == 'text':
         # BUtton reply chat
-        # data = self.custom_process_button(data, send_vals)
+        data = self.custom_process_button(data, send_vals)
 
         # List reply chat
         # data = self.custom_process_list(data, send_vals)
@@ -246,7 +246,7 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         # data = self.custom_process_document(data, send_vals)
 
         # Image reply chat
-        data = self.custom_process_image(data, send_vals)
+        # data = self.custom_process_image(data, send_vals)
 
     json_data = json.dumps(data)
     _logger.info("Send %s message from account %s [%s]", message_type, self.wa_account_id.name, self.wa_account_id.id)
