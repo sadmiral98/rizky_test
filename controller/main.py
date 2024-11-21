@@ -14,6 +14,7 @@ from odoo import _
 from odoo.exceptions import RedirectWarning
 from odoo.addons.whatsapp.tools.whatsapp_api import WhatsAppApi
 from odoo.addons.whatsapp.tools.whatsapp_exception import WhatsAppError
+from werkzeug.exceptions import Forbidden
 
 import logging
 _logger = logging.getLogger('dke.iziapp.id')
@@ -263,8 +264,56 @@ class WebController(Webhook):
             url = f"{request.env.company.ngrok_url}testwebhookpost"
             response = requests.post(url, json=data)
         else:
-            _logger.info("\n\ndke.iziapp.id : POST : ngrok url not found!")
-        super().webhookpost()
+            _logger.info("\n\ndke.iziapp.id : POST : ngrok url NOT found!")
+
+        for entry in data['entry']:
+            account_id = entry['id']
+            account = request.env['whatsapp.account'].sudo().search(
+                [('account_uid', '=', account_id)])
+            if not self._check_signature(account):
+                raise Forbidden()
+
+            for changes in entry.get('changes', []):
+                value = changes['value']
+                phone_number_id = value.get('metadata', {}).get('phone_number_id', {})
+                if not phone_number_id:
+                    phone_number_id = value.get('whatsapp_business_api_data', {}).get('phone_number_id', {})
+                if phone_number_id:
+                    _logger.info("\n\ndke.iziapp.id PHONE NUMBER %s", phone_number_id)
+                    wa_account_id = request.env['whatsapp.account'].sudo().search([
+                        ('phone_uid', '=', phone_number_id), ('account_uid', '=', account_id)])
+                    _logger.info("\n\ndke.iziapp.id wa_account_id %s", wa_account_id)
+                    if wa_account_id:
+                        # Process Messages and Status webhooks
+                        if changes['field'] == 'messages':
+                            _logger.info("\n\ndke.iziapp.id yes change val")
+                            _logger.info("\n\ndke.iziapp.id value %s", value)
+                            request.env['whatsapp.message']._process_statuses(value)
+                            wa_account_id._process_messages(value)
+                    else:
+                        _logger.warning("There is no phone configured for this whatsapp webhook : %s ", data)
+
+                # Process Template webhooks
+                if value.get('message_template_id'):
+                    # There is no user in webhook, so we need to SUPERUSER_ID to write on template object
+                    template = request.env['whatsapp.template'].sudo().search([('wa_template_uid', '=', value['message_template_id'])])
+                    if template:
+                        if changes['field'] == 'message_template_status_update':
+                            template.write({'status': value['event'].lower()})
+                            description = value.get('other_info', {}).get('description', {}) or value.get('reason', {})
+                            if description:
+                                template.message_post(
+                                    body=_("Your Template has been rejected.") + Markup("<br/>") + _("Reason : %s", description))
+                            continue
+                        if changes['field'] == 'message_template_quality_update':
+                            template.write({'quality': value['new_quality_score'].lower()})
+                            continue
+                        if changes['field'] == 'template_category_update':
+                            template.write({'template_type': value['new_category'].lower()})
+                            continue
+                        _logger.warning("Unknown Template webhook : %s ", value)
+                    else:
+                        _logger.warning("No Template found for this webhook : %s ", value)
     # @http.route('/whatsapp/webhook/', methods=['POST'], type="json", auth="public")
     # def webhookpost(self):
         
