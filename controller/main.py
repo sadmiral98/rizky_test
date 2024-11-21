@@ -115,7 +115,14 @@ def custom_process_document(self, data, send_vals):
     })
     return data
 
-def custom_process_list(self, data, send_vals):
+def custom_process_list(self, data, send_vals, records_to_button):
+    section_rows = []
+    for records in records_to_button:
+        section_rows.append({
+            'id': records.get('id'),
+            'title': records.get('name'),
+            'description': records.get('category')
+        })
     data.update({
         'type': 'interactive',
         'interactive': {
@@ -131,46 +138,8 @@ def custom_process_list(self, data, send_vals):
                 'sections': [
                     {
                         'title': 'SECTION Tit;e',
-                        'rows': [
-                            {
-                            'id': 'row_1',
-                            'title': 'row title 1',
-                            'description': 'description row 1'
-                            },
-                            {
-                            'id': 'row_2',
-                            'title': 'row title 2',
-                            'description': 'description row 2'
-                            },
-                            {
-                            'id': 'row_3',
-                            'title': 'row title 3',
-                            'description': 'description row 3'
-                            },
-                            
-                        ]
+                        'rows': section_rows
                     },
-                    {
-                        'title': 'SECTION Title 2',
-                        'rows': [
-                            {
-                            'id': '2_row_1',
-                            'title': '2_row title 1',
-                            'description': 'description 2_row 1'
-                            },
-                            {
-                            'id': '2_row_2',
-                            'title': '2_row title 2',
-                            'description': 'description 2_row 2'
-                            },
-                            {
-                            'id': '2_row_3',
-                            'title': '2_row title 3',
-                            'description': 'description 2_row 3'
-                            },
-                        ]
-                    },
-                    
                 ],
                 'button': 'Open Option',
             }
@@ -212,7 +181,6 @@ def custom_process_button(self, data, send_vals):
     })
     return data
 def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False, records_to_button=[]):
-    _logger.info("Lets see the records_to_button : [%s]", records_to_button)
     """ Send WA messages for all message type using WhatsApp Business Account
 
     API Documentation:
@@ -238,10 +206,11 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         })
     if message_type == 'text':
         # BUtton reply chat
-        data = self.custom_process_button(data, send_vals)
+        # data = self.custom_process_button(data, send_vals)
 
-        # List reply chat
-        # data = self.custom_process_list(data, send_vals)
+        if records_to_button:
+            # List reply chat
+            data = self.custom_process_list(data, send_vals, records_to_button)
 
         # document reply chat
         # data = self.custom_process_document(data, send_vals)
