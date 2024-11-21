@@ -41,6 +41,7 @@ def custom_api_request(self, request_type, url, auth_type="", params=False, head
 
     try:
         res = requests.request(request_type, call_url, params=params, headers=headers, data=data, files=files, timeout=10)
+        _logger.info("res api req %s ||| %s",res,res.json())
     except requests.exceptions.RequestException:
         raise WhatsAppError(failure_type='network')
 
@@ -233,6 +234,7 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         data=json_data
     )
     response_json = response.json()
+    _logger.info("response ::>> %s",response_json)
     if response_json.get('messages'):
         msg_uid = response_json['messages'][0]['id']
         return msg_uid
