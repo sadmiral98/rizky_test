@@ -119,9 +119,9 @@ def custom_process_list(self, data, send_vals, records_to_button):
     section_rows = []
     for records in records_to_button:
         section_rows.append({
-            'id': str(records.get('id')),
+            'id': 'row_'+str(records.get('id')),
             'title': records.get('name'),
-            'description': records.get('category')
+            'description': records.get('name')
         })
     data.update({
         'type': 'interactive',
@@ -140,7 +140,7 @@ def custom_process_list(self, data, send_vals, records_to_button):
             'action': {
                 'sections': [
                     {
-                        'title': 'SECTION Tit;e',
+                        'title': 'SECTION Title',
                         'rows': section_rows
                         # 'rows': [{'id':}]
                     }
