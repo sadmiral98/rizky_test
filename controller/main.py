@@ -217,12 +217,19 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
             _logger.info("yes records ")
             # List reply chat
             data = self.custom_process_list(data, send_vals, records_to_button)
-        _logger.info("DATA : %s", data)
+
         # document reply chat
         # data = self.custom_process_document(data, send_vals)
 
         # Image reply chat
         # data = self.custom_process_image(data, send_vals)
+        
+        else: # R; if no records to button, set it as regular text reply
+            data.update({
+                'type': message_type,
+                message_type: send_vals
+            })
+        _logger.info("DATA : %s", data)
 
     json_data = json.dumps(data)
     _logger.info("Send %s message from account %s [%s]", message_type, self.wa_account_id.name, self.wa_account_id.id)
