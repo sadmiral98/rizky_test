@@ -121,7 +121,7 @@ def custom_process_list(self, data, send_vals, records_to_button):
     for records in records_to_button:
         section_rows.append({
             'id': 'row_'+str(records.get('id')),
-            'title': records.get('category'),
+            'title': records.get('category'), # R: Max Char is 24 Chars
             'description': records.get('name')
         })
     data.update({
