@@ -209,9 +209,10 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         # data = self.custom_process_button(data, send_vals)
 
         if records_to_button:
+            _logger.info("yes records ")
             # List reply chat
             data = self.custom_process_list(data, send_vals, records_to_button)
-
+        _logger.info("DATA : %s", data)
         # document reply chat
         # data = self.custom_process_document(data, send_vals)
 
