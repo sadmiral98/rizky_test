@@ -134,12 +134,15 @@ def custom_process_list(self, data, send_vals, records_to_button):
             'body': {
                 'text': send_vals.get('body')
             },
+            'footer': {
+                'text': 'Select 1 item'
+            },
             'action': {
                 'sections': [
                     {
                         'title': 'SECTION Tit;e',
                         'rows': section_rows
-                    },
+                    }
                 ],
                 'button': 'Open Option',
             }
