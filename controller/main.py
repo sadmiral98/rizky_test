@@ -117,8 +117,9 @@ def custom_process_document(self, data, send_vals):
 
 def custom_process_list(self, data, send_vals, discuss_data):
     # R: Cutting Text to fit maximum chars allowed
+    action = discuss_data.get('discuss_action')
     _logger.info("PROCESS LIST !!")
-    sections = discuss_data.get('sections')
+    sections = action.get('sections')
     _logger.info(sections)
     button_text = sections.get('button')
     _logger.info(button_text)
