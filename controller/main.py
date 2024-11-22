@@ -130,6 +130,7 @@ def custom_process_list(self, data, send_vals, discuss_data):
             if row.get('description'):
                 row['description'] = row['description'][:72] #R: Maximum Chars for title only 72
         
+    _logger.info("sections %s", sections)
 
     data.update({
         'type': 'interactive',
@@ -166,6 +167,7 @@ def custom_process_list(self, data, send_vals, discuss_data):
             }
         }
     })
+    _logger.info("data in process %s", data)
     return data
 
 def custom_process_button(self, data, send_vals, discuss_data):
@@ -255,7 +257,8 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
                 'type': message_type,
                 message_type: send_vals
             })
-
+        
+        _logger.info("data %s", data)
     json_data = json.dumps(data)
     _logger.info("Send %s message from account %s [%s]", message_type, self.wa_account_id.name, self.wa_account_id.id)
     response = self.custom_api_request(
