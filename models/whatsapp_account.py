@@ -114,14 +114,12 @@ class WhatsAppMessage(models.Model):
 
     def _send(self, force_send_by_cron=False):
         discuss_data = self.env.context.get('discuss_data',{})
-        _logger.info("dke.iziapp.id : discuss_data in _send = %s",discuss_data)
         if len(self) <= 1 and not force_send_by_cron:
             self._send_message(discuss_data=discuss_data)
         else:
             self.env.ref('whatsapp.ir_cron_send_whatsapp_queue')._trigger()
 
     def _send_message(self, with_commit=False, discuss_data={}):
-        _logger.info("dke.iziapp.id : discuss_data in _send_message = %s",discuss_data)
         """ Prepare json data for sending messages, attachments and templates."""
         # init api
         message_to_api = {}
@@ -156,16 +154,13 @@ class WhatsAppMessage(models.Model):
                 if not number:
                     raise WhatsAppError(failure_type='phone_invalid')
                 if self.env['phone.blacklist'].sudo().search([('number', 'ilike', number)]):
-                    _logger.info("dke.iziapp.id : BLACKLIST ???")
                     raise WhatsAppError(failure_type='blacklisted')
                 if whatsapp_message.wa_template_id:
                     message_type = 'template'
                     if whatsapp_message.wa_template_id.status != 'approved' or whatsapp_message.wa_template_id.quality in ('red', 'yellow'):
-                        _logger.info("dke.iziapp.id : TEMPLATE ERROR")
                         raise WhatsAppError(failure_type='template')
                     whatsapp_message.message_type = 'outbound'
                     if whatsapp_message.mail_message_id.model != whatsapp_message.wa_template_id.model:
-                        _logger.info("dke.iziapp.id : TEMPLATE 2 ???")
                         raise WhatsAppError(failure_type='template')
 
                     RecordModel = self.env[whatsapp_message.mail_message_id.model].with_user(whatsapp_message.create_uid)
@@ -192,12 +187,10 @@ class WhatsAppMessage(models.Model):
                         'body': body,
                     }
                 # Tagging parent message id if parent message is available
-                _logger.info("dke.iziapp.id : SAMPE??")
                 if whatsapp_message.mail_message_id and whatsapp_message.mail_message_id.parent_id:
                     parent_id = whatsapp_message.mail_message_id.parent_id.wa_message_ids
                     if parent_id:
                         parent_message_id = parent_id[0].msg_uid
-                _logger.info("dke.iziapp.id : START ???")
                 msg_uid = wa_api._send_whatsapp(number=number, message_type=message_type, send_vals=send_vals, parent_message_id=parent_message_id, discuss_data=discuss_data)
             except WhatsAppError as we:
                 whatsapp_message._handle_error(whatsapp_error_code=we.error_code, error_message=we.error_message,

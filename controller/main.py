@@ -213,6 +213,7 @@ def custom_process_button(self, data, send_vals, discuss_data):
     })
     return data
 def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False, discuss_data={}):
+    _logger.info("discuss_data %s => %s", discuss_data,message_type)
     """ Send WA messages for all message type using WhatsApp Business Account
 
     API Documentation:
@@ -237,7 +238,9 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
             message_type: send_vals
         })
     if message_type == 'text':
+        _logger.info("IS TEXT")
         if discuss_data:
+            _logger.info("IF DISCUSS DATA")
             if discuss_data.get('discuss_type') == 'button':
                 # BUtton reply chat
                 data = self.custom_process_button(data, send_vals, discuss_data)
