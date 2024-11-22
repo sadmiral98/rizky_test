@@ -117,18 +117,25 @@ def custom_process_document(self, data, send_vals):
 
 def custom_process_list(self, data, send_vals, discuss_data):
     # R: Cutting Text to fit maximum chars allowed
+    _logger.info("PROCESS LIST !!")
     sections = discuss_data.get('sections')
+    _logger.info(sections)
     button_text = sections.get('button')
+    _logger.info(button_text)
     button_text = button_text[:20] #R: Maximum Chars for title only 20
+    _logger.info(button_text)
     
     for section in sections:
         if section.get('title'):
             section['title'] = section['title'][:24] #R: Maximum Chars for title only 24
+            _logger.info("fixed title")
         for row in section.get('rows'):
             if row.get('title'):
                 row['title'] = row['title'][:24] #R: Maximum Chars for title only 24
+                _logger.info("fixed row title")
             if row.get('description'):
                 row['description'] = row['description'][:72] #R: Maximum Chars for title only 72
+                _logger.info("fixed desc")
         
     _logger.info("sections %s", sections)
 
@@ -242,10 +249,12 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         if discuss_data:
             _logger.info("IF DISCUSS DATA")
             if discuss_data.get('discuss_type') == 'button':
+                _logger.info("BUTTON ??")
                 # BUtton reply chat
                 data = self.custom_process_button(data, send_vals, discuss_data)
 
             elif discuss_data.get('discuss_type') == 'list':
+                _logger.info("LIST !!")
                 # List reply chat
                 data = self.custom_process_list(data, send_vals, discuss_data)
 
