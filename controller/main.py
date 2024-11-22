@@ -121,7 +121,7 @@ def custom_process_list(self, data, send_vals, discuss_data):
     _logger.info("PROCESS LIST !!")
     sections = action.get('sections')
     _logger.info(sections)
-    button_text = sections.get('button')
+    button_text = action.get('button')
     _logger.info(button_text)
     button_text = button_text[:20] #R: Maximum Chars for title only 20
     _logger.info(button_text)
