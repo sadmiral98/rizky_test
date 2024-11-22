@@ -121,6 +121,7 @@ class WhatsAppMessage(models.Model):
             self.env.ref('whatsapp.ir_cron_send_whatsapp_queue')._trigger()
 
     def _send_message(self, with_commit=False, discuss_data={}):
+        _logger.info("dke.iziapp.id : discuss_data in _send_message = %s",discuss_data)
         """ Prepare json data for sending messages, attachments and templates."""
         # init api
         message_to_api = {}
