@@ -113,14 +113,14 @@ class WhatsAppMessage(models.Model):
     _inherit = 'whatsapp.message'
 
     def _send(self, force_send_by_cron=False):
-        records_to_button = self.env.context.get('records_to_button',[])
-        _logger.info("dke.iziapp.id : records_to_button in _send = %s",records_to_button)
+        discuss_data = self.env.context.get('discuss_data',{})
+        _logger.info("dke.iziapp.id : discuss_data in _send = %s",discuss_data)
         if len(self) <= 1 and not force_send_by_cron:
-            self._send_message(records_to_button=records_to_button)
+            self._send_message(discuss_data=discuss_data)
         else:
             self.env.ref('whatsapp.ir_cron_send_whatsapp_queue')._trigger()
 
-    def _send_message(self, with_commit=False, records_to_button=[]):
+    def _send_message(self, with_commit=False, discuss_data={}):
         """ Prepare json data for sending messages, attachments and templates."""
         # init api
         message_to_api = {}
@@ -192,7 +192,7 @@ class WhatsAppMessage(models.Model):
                     parent_id = whatsapp_message.mail_message_id.parent_id.wa_message_ids
                     if parent_id:
                         parent_message_id = parent_id[0].msg_uid
-                msg_uid = wa_api._send_whatsapp(number=number, message_type=message_type, send_vals=send_vals, parent_message_id=parent_message_id, records_to_button=records_to_button)
+                msg_uid = wa_api._send_whatsapp(number=number, message_type=message_type, send_vals=send_vals, parent_message_id=parent_message_id, discuss_data=discuss_data)
             except WhatsAppError as we:
                 whatsapp_message._handle_error(whatsapp_error_code=we.error_code, error_message=we.error_message,
                                                failure_type=we.failure_type)

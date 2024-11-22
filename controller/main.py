@@ -116,14 +116,15 @@ def custom_process_document(self, data, send_vals):
     })
     return data
 
-def custom_process_list(self, data, send_vals, records_to_button):
-    section_rows = []
-    for records in records_to_button:
-        section_rows.append({
-            'id': 'row_'+str(records.get('id')),
-            'title': records.get('category'), # R: Max Char is 24 Chars
-            'description': records.get('name')
-        })
+def custom_process_list(self, data, send_vals, discuss_data):
+    sections = discuss_data.get('sections')
+    button_text = discuss_data.get('sections')
+    # for records in discuss_data:
+    #     section_rows.append({
+    #         'id': 'row_'+str(records.get('id')),
+    #         'title': records.get('category'), # R: Max Char is 24 Chars
+    #         'description': records.get('name')
+    #     })
     data.update({
         'type': 'interactive',
         'interactive': {
@@ -139,53 +140,70 @@ def custom_process_list(self, data, send_vals, records_to_button):
                 'text': 'Select 1 item'
             },
             'action': {
-                'sections': [
-                    {
-                        'title': 'SECTION Title',
-                        'rows': section_rows
-                        # 'rows': [{'id':}]
-                    }
-                ],
-                'button': 'Open Option',
+                'sections': sections,
+                'button': '<BUTTON_TEXT>',
+                # 'sections': [
+                #     {
+                #     'title': '<SECTION_TITLE_TEXT>',
+                #     'rows': [
+                #         {
+                #         'id': '<ROW_ID>',
+                #         'title': '<ROW_TITLE_TEXT>',
+                #         'description': '<ROW_DESCRIPTION_TEXT>'
+                #         }
+                #         /* Additional rows would go here*/
+                #     ]
+                #     }
+                #     /* Additional sections would go here */
+                # ],
+                # 'button': '<BUTTON_TEXT>',
             }
         }
     })
     return data
 
-def custom_process_button(self, data, send_vals):
+def custom_process_button(self, data, send_vals, discuss_data):
+    action = discuss_data.get('discuss_action')
+    max_button = 3
+    action['buttons'] = action['buttons'][:max_button] #R : Maximum button reply only 3, based on Whatsapp API Cloud
+    for button in action['buttons']:
+        if 'title' in button['reply']:
+            button['reply']['title'] = button['reply']['title'][:20] #R: Maximum Chars for button title only 20
+
     data.update({
         'type': 'interactive',
         'interactive': {
             'type': 'button',
             'header': {
                 'type':'text',
-                'text': 'Testing Reply Button'
+                'text': discuss_data.get('discuss_header')
             },
             'body': {
-                'text': send_vals.get('body')
+                'text': discuss_data.get('discuss_message')
             },
-            'action': {
-                'buttons': [
-                    {
-                    'type': 'reply',
-                    'reply': {
-                        'id': 'reply-yes',
-                        'title': 'Yeah !'
-                        }
-                    },
-                    {
-                    'type': 'reply',
-                    'reply': {
-                        'id': 'reply-no',
-                        'title': 'Nope ?!'
-                        }
-                    }
-                ]
-            }
+            'action': action
+            # 'action': {
+                # 'buttons': [
+                #     {
+                #     'type': 'reply',
+                #     'reply': {
+                #         'id': 'reply-yes',
+                #         'title': 'Yeah !'
+                #         }
+                #     },
+                #     {
+                #     'type': 'reply',
+                #     'reply': {
+                #         'id': 'reply-no',
+                #         'title': 'Nope ?!'
+                #         }
+                #     }
+                # ]
+            # }
         }
     })
     return data
-def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False, records_to_button=[]):
+def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False, discuss_data={}):
     """ Send WA messages for all message type using WhatsApp Business Account
 
     API Documentation:
@@ -210,19 +228,20 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
             message_type: send_vals
         })
     if message_type == 'text':
-        # BUtton reply chat
-        # data = self.custom_process_button(data, send_vals)
+        if discuss_data:
+            if discuss_data.get('discuss_type') == 'button':
+                # BUtton reply chat
+                data = self.custom_process_button(data, send_vals, discuss_data)
 
-        if records_to_button:
-            _logger.info("yes records ")
-            # List reply chat
-            data = self.custom_process_list(data, send_vals, records_to_button)
+            elif discuss_data.get('discuss_type') == 'list':
+                # List reply chat
+                data = self.custom_process_list(data, send_vals, discuss_data)
 
-        # document reply chat
-        # data = self.custom_process_document(data, send_vals)
+            # document reply chat
+            # data = self.custom_process_document(data, send_vals)
 
-        # Image reply chat
-        # data = self.custom_process_image(data, send_vals)
+            # Image reply chat
+            # data = self.custom_process_image(data, send_vals)
         
         else: # R; if no records to button, set it as regular text reply
             data.update({
