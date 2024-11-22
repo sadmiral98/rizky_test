@@ -41,7 +41,6 @@ def custom_api_request(self, request_type, url, auth_type="", params=False, head
 
     try:
         res = requests.request(request_type, call_url, params=params, headers=headers, data=data, files=files, timeout=10)
-        _logger.info("res api req %s ||| %s",res,res.json())
     except requests.exceptions.RequestException:
         raise WhatsAppError(failure_type='network')
 
@@ -117,14 +116,21 @@ def custom_process_document(self, data, send_vals):
     return data
 
 def custom_process_list(self, data, send_vals, discuss_data):
+    # R: Cutting Text to fit maximum chars allowed
     sections = discuss_data.get('sections')
-    button_text = discuss_data.get('sections')
-    # for records in discuss_data:
-    #     section_rows.append({
-    #         'id': 'row_'+str(records.get('id')),
-    #         'title': records.get('category'), # R: Max Char is 24 Chars
-    #         'description': records.get('name')
-    #     })
+    button_text = sections.get('button')
+    button_text = button_text[:20] #R: Maximum Chars for title only 20
+    
+    for section in sections:
+        if section.get('title'):
+            section['title'] = section['title'][:24] #R: Maximum Chars for title only 24
+        for row in section.get('rows'):
+            if row.get('title'):
+                row['title'] = row['title'][:24] #R: Maximum Chars for title only 24
+            if row.get('description'):
+                row['description'] = row['description'][:72] #R: Maximum Chars for title only 72
+        
+
     data.update({
         'type': 'interactive',
         'interactive': {
@@ -141,7 +147,7 @@ def custom_process_list(self, data, send_vals, discuss_data):
             },
             'action': {
                 'sections': sections,
-                'button': '<BUTTON_TEXT>',
+                'button': button_text,
                 # 'sections': [
                 #     {
                 #     'title': '<SECTION_TITLE_TEXT>',
@@ -163,6 +169,7 @@ def custom_process_list(self, data, send_vals, discuss_data):
     return data
 
 def custom_process_button(self, data, send_vals, discuss_data):
+    # R: Cutting Text to fit maximum chars allowed
     action = discuss_data.get('discuss_action')
     max_button = 3
     action['buttons'] = action['buttons'][:max_button] #R : Maximum button reply only 3, based on Whatsapp API Cloud
@@ -204,7 +211,6 @@ def custom_process_button(self, data, send_vals, discuss_data):
     })
     return data
 def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False, discuss_data={}):
-    _logger.info("discuss_data %s" % discuss_data)
     """ Send WA messages for all message type using WhatsApp Business Account
 
     API Documentation:
@@ -249,7 +255,6 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
                 'type': message_type,
                 message_type: send_vals
             })
-        _logger.info("DATA : %s", data)
 
     json_data = json.dumps(data)
     _logger.info("Send %s message from account %s [%s]", message_type, self.wa_account_id.name, self.wa_account_id.id)
@@ -261,7 +266,6 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         data=json_data
     )
     response_json = response.json()
-    _logger.info("response ::>> %s",response_json)
     if response_json.get('messages'):
         msg_uid = response_json['messages'][0]['id']
         return msg_uid
