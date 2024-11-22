@@ -118,38 +118,29 @@ def custom_process_document(self, data, send_vals):
 def custom_process_list(self, data, send_vals, discuss_data):
     # R: Cutting Text to fit maximum chars allowed
     action = discuss_data.get('discuss_action')
-    _logger.info("PROCESS LIST !!")
     sections = action.get('sections')
-    _logger.info(sections)
     button_text = action.get('button')
-    _logger.info(button_text)
     button_text = button_text[:20] #R: Maximum Chars for title only 20
-    _logger.info(button_text)
     
     for section in sections:
         if section.get('title'):
             section['title'] = section['title'][:24] #R: Maximum Chars for title only 24
-            _logger.info("fixed title")
         for row in section.get('rows'):
             if row.get('title'):
                 row['title'] = row['title'][:24] #R: Maximum Chars for title only 24
-                _logger.info("fixed row title")
             if row.get('description'):
                 row['description'] = row['description'][:72] #R: Maximum Chars for title only 72
-                _logger.info("fixed desc")
         
-    _logger.info("sections %s", sections)
-
     data.update({
         'type': 'interactive',
         'interactive': {
             'type': 'list',
             'header': {
                 'type':'text',
-                'text': 'Testing Reply Button'
+                'text': discuss_data.get('discuss_header')
             },
             'body': {
-                'text': send_vals.get('body')
+                'text': discuss_data.get('discuss_message')
             },
             'footer': {
                 'text': 'Select 1 item'
@@ -175,7 +166,6 @@ def custom_process_list(self, data, send_vals, discuss_data):
             }
         }
     })
-    _logger.info("data in process %s", data)
     return data
 
 def custom_process_button(self, data, send_vals, discuss_data):
@@ -221,7 +211,6 @@ def custom_process_button(self, data, send_vals, discuss_data):
     })
     return data
 def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_id=False, discuss_data={}):
-    _logger.info("discuss_data %s => %s", discuss_data,message_type)
     """ Send WA messages for all message type using WhatsApp Business Account
 
     API Documentation:
@@ -246,16 +235,12 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
             message_type: send_vals
         })
     if message_type == 'text':
-        _logger.info("IS TEXT")
         if discuss_data:
-            _logger.info("IF DISCUSS DATA")
             if discuss_data.get('discuss_type') == 'button':
-                _logger.info("BUTTON ??")
                 # BUtton reply chat
                 data = self.custom_process_button(data, send_vals, discuss_data)
 
             elif discuss_data.get('discuss_type') == 'list':
-                _logger.info("LIST !!")
                 # List reply chat
                 data = self.custom_process_list(data, send_vals, discuss_data)
 
@@ -271,7 +256,6 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
                 message_type: send_vals
             })
         
-        _logger.info("data %s", data)
     json_data = json.dumps(data)
     _logger.info("Send %s message from account %s [%s]", message_type, self.wa_account_id.name, self.wa_account_id.id)
     response = self.custom_api_request(
