@@ -135,6 +135,7 @@ def custom_process_list(self, data, send_vals, discuss_data):
         'type': 'interactive',
         'interactive': {
             'type': 'list',
+            'preview_url': True,
             'header': {
                 'type':'text',
                 'text': discuss_data.get('discuss_header')
@@ -181,6 +182,7 @@ def custom_process_button(self, data, send_vals, discuss_data):
         'type': 'interactive',
         'interactive': {
             'type': 'button',
+            'preview_url': True,
             'header': {
                 'type':'text',
                 'text': discuss_data.get('discuss_header')
