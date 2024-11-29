@@ -101,10 +101,15 @@ def custom_process_image(self, data, send_vals):
 
 def custom_process_document(self, data, send_vals, discuss_data):
     try:
-        attachment_id = discuss_data.get('discuss_attachment') #this returning 1371. and id 1371 is do exist!
-        _logger.info("1") #but logging is stopping on here! logger "2" doesnt printed?? why?
-        attachment = request.env['ir.attachment'].sudo().browse(1371)
+        _logger.info("Request context: %s", request.env if request else "No request context")
+
+        # attachment_id = discuss_data.get('discuss_attachment')
+        _logger.info("1")
+        attachment = self.env['ir.attachment'].sudo().browse(1371)
         _logger.info("2")
+        _logger.info(attachment)
+        attachment = request.env['ir.attachment'].sudo().browse(1371)
+        _logger.info("3")
         _logger.info(attachment)
         file_content = base64.b64decode(attachment.datas)
         file_name = attachment.name
