@@ -237,6 +237,8 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
         })
     if message_type == 'text':
         if discuss_data:
+            _logger.info("discuss data : ")
+            _logger.info(discuss_data)
             if discuss_data.get('discuss_type') == 'button':
                 # BUtton reply chat
                 data = self.custom_process_button(data, send_vals, discuss_data)
