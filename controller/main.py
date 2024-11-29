@@ -101,7 +101,10 @@ def custom_process_image(self, data, send_vals):
 
 def custom_process_document(self, data, send_vals, discuss_data):
     attachment_id = discuss_data.get('discuss_attachment')
+    _logger.info("Process document : ")
+    _logger.info(attachment_id)
     attachment = request.env['ir.attachment'].sudo().browse(attachment_id)
+    _logger.info(attachment)
     file_content = base64.b64decode(attachment.datas)
     file_name = attachment.name
     mimetype = attachment.mimetype
