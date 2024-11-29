@@ -99,8 +99,9 @@ def custom_process_image(self, data, send_vals):
     })
     return data
 
-def custom_process_document(self, data, send_vals):
-    attachment = request.env['ir.attachment'].sudo().browse(1340)
+def custom_process_document(self, data, send_vals, discuss_data):
+    attachment_id = discuss_data.get('discuss_attachment')
+    attachment = request.env['ir.attachment'].sudo().browse(attachment_id)
     file_content = base64.b64decode(attachment.datas)
     file_name = attachment.name
     mimetype = attachment.mimetype
@@ -244,8 +245,9 @@ def custom_send_whatsapp(self, number, message_type, send_vals, parent_message_i
                 # List reply chat
                 data = self.custom_process_list(data, send_vals, discuss_data)
 
-            # document reply chat
-            # data = self.custom_process_document(data, send_vals)
+            elif discuss_data.get('discuss_type') == 'document':
+                # document reply chat
+                data = self.custom_process_document(data, send_vals, discuss_data)
 
             # Image reply chat
             # data = self.custom_process_image(data, send_vals)
