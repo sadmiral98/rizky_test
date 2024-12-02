@@ -85,7 +85,7 @@ def get_media_id(self, file_content, file_name, mimetype):
     return media_id
 
 def custom_process_image(self, data, send_vals):
-    attachment = request.env['ir.attachment'].sudo().browse(1341)
+    attachment = self.wa_account_id.env['ir.attachment'].sudo().browse(1341)
     file_content = base64.b64decode(attachment.datas)
     file_name = attachment.name
     mimetype = attachment.mimetype
@@ -100,30 +100,20 @@ def custom_process_image(self, data, send_vals):
     return data
 
 def custom_process_document(self, data, send_vals, discuss_data):
-    try:
-        # attachment_id = discuss_data.get('discuss_attachment')
-        _logger.info("1")
-        attachment = self.wa_account_id.env['ir.attachment'].sudo().browse(1371)
-        _logger.info("3")
-        _logger.info(attachment)
-        file_content = base64.b64decode(attachment.datas)
-        file_name = attachment.name
-        mimetype = attachment.mimetype
-        media_id = self.get_media_id(file_content, file_name, mimetype)
-        data.update({
-            'type': 'document',
-            'document': {
-                'id' : media_id,
-                'caption': send_vals.get('body'),
-                'filename': 'doc_filename.pdf'
-            }
-        })
-    except Exception as e:
-        _logger.error("Error occurred: %s", str(e))
-        data.update({
-            'type': 'text',
-            'text': send_vals
-        })
+    attachment_id = discuss_data.get('discuss_attachment')
+    attachment = self.wa_account_id.env['ir.attachment'].sudo().browse(int(attachment_id))
+    file_content = base64.b64decode(attachment.datas)
+    file_name = attachment.name
+    mimetype = attachment.mimetype
+    media_id = self.get_media_id(file_content, file_name, mimetype)
+    data.update({
+        'type': 'document',
+        'document': {
+            'id' : media_id,
+            'caption': send_vals.get('body'),
+            'filename': f'{file_name}.pdf'
+        }
+    })
     return data
 
 def custom_process_list(self, data, send_vals, discuss_data):
