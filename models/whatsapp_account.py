@@ -56,7 +56,6 @@ class WhatsAppAccount(models.Model):
                 'subtype_xmlid': 'mail.mt_comment',
                 'parent_id': parent_id.id if parent_id else None
             }
-            _logger.info('lab.iziapp.id messages check : ',messages)
             if message_type == 'text':
                 kwargs['body'] = plaintext2html(messages['text']['body'])
             elif message_type == 'button':
@@ -100,6 +99,7 @@ class WhatsAppAccount(models.Model):
                     whatsapp_message.mail_message_id._post_whatsapp_reaction(reaction_content=emoji, partner_id=partner_id)
                     continue
             elif message_type == 'interactive':
+                _logger.info("lab.iziapp.id message interactive %s",messages)
                 if messages['interactive']['type'] == 'list_reply':
                     kwargs['body'] = plaintext2html(messages['interactive']['list_reply']['description'])
                 elif messages['interactive']['type'] == 'button_reply':
