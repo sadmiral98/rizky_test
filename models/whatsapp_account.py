@@ -56,6 +56,7 @@ class WhatsAppAccount(models.Model):
                 'subtype_xmlid': 'mail.mt_comment',
                 'parent_id': parent_id.id if parent_id else None
             }
+            _logger.info('lab.iziapp.id messages check : ',messages)
             if message_type == 'text':
                 kwargs['body'] = plaintext2html(messages['text']['body'])
             elif message_type == 'button':
